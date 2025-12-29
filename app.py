@@ -130,5 +130,5 @@ If the user is engaging in discussion, try to steer them towards getting in touc
 
 if __name__ == "__main__":
     me = Me()
-    gr.ChatInterface(me.chat, title= "Jithin Career Bot", description= "Feel free to ask me any questions you have about my career and background.").launch()
+    gr.ChatInterface(me.chat, title= "Jithin Career Bot", description= "Feel free to ask me any questions you have about my career and background.").launch(ssr_mode=False)
     
