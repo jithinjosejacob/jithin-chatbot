@@ -128,7 +128,9 @@ If the user is engaging in discussion, try to steer them towards getting in touc
         return response.choices[0].message.content
     
 
+me = Me()
+demo = gr.ChatInterface(me.chat, title="Jithin Career Bot", description="Feel free to ask me any questions you have about my career and background.")
+
 if __name__ == "__main__":
-    me = Me()
-    gr.ChatInterface(me.chat, title= "Jithin Career Bot", description= "Feel free to ask me any questions you have about my career and background.").launch(ssr_mode=False)
+    demo.launch(ssr_mode=False)
     

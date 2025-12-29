@@ -3,6 +3,7 @@ title: jithin-chatbot-space
 app_file: app.py
 sdk: gradio
 sdk_version: 6.2.0
+python_version: "3.11"
 ---
 
 Deployed to https://huggingface.co/spaces/jithinjacob2011/jithin-chatbot-space
