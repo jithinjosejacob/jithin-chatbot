@@ -26,3 +26,5 @@ uv sync
 # Run the app
 
 uv run python app.py
+
+# Remove ay binry files from repo
