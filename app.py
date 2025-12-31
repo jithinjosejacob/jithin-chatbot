@@ -10,14 +10,8 @@ import gradio as gr
 load_dotenv(override=True)
 
 def push(text):
-    requests.post(
-        "https://api.pushover.net/1/messages.json",
-        data={
-            "token": os.getenv("PUSHOVER_TOKEN"),
-            "user": os.getenv("PUSHOVER_USER"),
-            "message": text,
-        }
-    )
+    topic = os.getenv("NTFY_TOPIC", "Chatbot")
+    requests.post(f"https://ntfy.sh/{topic}", data=text.encode('utf-8'))
 
 
 def record_user_details(email, name="Name not provided", notes="not provided"):
