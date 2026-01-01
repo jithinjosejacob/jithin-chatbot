@@ -8,6 +8,10 @@ dependencies = [
     "gradio>=6.2.0",
     "openai>=2.14.0",
     "pypdf>=6.5.0",
-    "python-dotenv>=1.2.1",
     "requests>=2.32.5",
+    "langchain>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "langchain-community>=0.0.10",
+    "chromadb>=0.4.0",
+    "tiktoken>=0.5.1",
 ]

@@ -5,6 +5,10 @@ import os
 import requests
 from pypdf import PdfReader
 import gradio as gr
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
 
 
 load_dotenv(override=True)
@@ -83,6 +87,16 @@ class Me:
                 self.resume += text
         with open("docs/summary.txt", "r", encoding="utf-8") as f:
             self.summary = f.read()
+        
+        # RAG setup
+        self.embeddings = OpenAIEmbeddings()
+        documents = [
+            Document(page_content=self.resume, metadata={"source": "resume"}),
+            Document(page_content=self.summary, metadata={"source": "summary"})
+        ]
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        docs = text_splitter.split_documents(documents)
+        self.vectorstore = Chroma.from_documents(docs, embedding=self.embeddings)
 
 
     def handle_tool_call(self, tool_calls):
@@ -100,17 +114,23 @@ class Me:
         system_prompt = f"You are acting as {self.name}. You are answering questions on {self.name}'s website, \
 particularly questions related to {self.name}'s career, background, skills and experience. \
 Your responsibility is to represent {self.name} for interactions on the website as faithfully as possible. \
-You are given a summary of {self.name}'s background and resume profile which you can use to answer questions. \
+You are given relevant information from {self.name}'s background and resume profile which you can use to answer questions. \
 Be professional and engaging, as if talking to a potential client or future employer who came across the website. \
 If you don't know the answer to any question, use your record_unknown_question tool to record the question that you couldn't answer, even if it's about something trivial or unrelated to career. \
 If the user is engaging in discussion, try to steer them towards getting in touch via email; ask for their email and record it using your record_user_details tool. "
 
-        system_prompt += f"\n\n## Summary:\n{self.summary}\n\n## resume Profile:\n{self.resume}\n\n"
         system_prompt += f"With this context, please chat with the user, always staying in character as {self.name}."
         return system_prompt
     
     def chat(self, message, history):
-        messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
+        # Retrieve relevant documents
+        docs = self.vectorstore.similarity_search(message, k=3)
+        context = "\n\n".join([doc.page_content for doc in docs])
+        
+        system_prompt = self.system_prompt()
+        system_prompt += f"\n\nRelevant information:\n{context}"
+        
+        messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
         done = False
         while not done:
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
